@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import Editor from '@monaco-editor/react';
 import axios from 'axios';
+import confetti from 'canvas-confetti';
 
 function CodeEditor() {
   const { t } = useTranslation();
@@ -19,26 +20,60 @@ function CodeEditor() {
     html: '<!-- Write HTML here -->\n<h1>Hello, CodeQuest!</h1>\n<p>This is HTML preview</p>'
   };
 
-  const handleRunCode = async () => {
-  setIsRunning(true);
-  setOutput('');
-  setError('');
-  setExecutionTime(0);
+  // Confetti celebration!
+  const celebrate = () => {
+    const duration = 3 * 1000;
+    const animationEnd = Date.now() + duration;
 
-  try {
-    // Use environment variable for API URL
-    const apiUrl = import.meta.env.VITE_API_URL || '';
-    const endpoint = apiUrl ? `${apiUrl}/api/execute` : '/api/execute';
-    
-    const response = await axios.post(endpoint, {
-      code: code,
-      language: language
-    });
+    const randomInRange = (min, max) => Math.random() * (max - min) + min;
+
+    const interval = setInterval(() => {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      confetti({
+        particleCount: 3,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0 },
+        colors: ['#9333EA', '#EC4899', '#F59E0B', '#3B82F6', '#10B981']
+      });
+      
+      confetti({
+        particleCount: 3,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1 },
+        colors: ['#9333EA', '#EC4899', '#F59E0B', '#3B82F6', '#10B981']
+      });
+    }, 50);
+  };
+
+  const handleRunCode = async () => {
+    setIsRunning(true);
+    setOutput('');
+    setError('');
+    setExecutionTime(0);
+
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const endpoint = apiUrl ? `${apiUrl}/api/execute` : '/api/execute';
+      
+      const response = await axios.post(endpoint, {
+        code: code,
+        language: language
+      });
+
       const result = response.data;
       
       if (result.status === 'success') {
         setOutput(result.output);
         setExecutionTime(result.execution_time);
+        // 🎉 Celebrate success!
+        celebrate();
       } else {
         setError(result.error);
         setExecutionTime(result.execution_time);
@@ -50,6 +85,7 @@ function CodeEditor() {
       setIsRunning(false);
     }
   };
+
   const handleLanguageChange = (newLang) => {
     setLanguage(newLang);
     setCode(defaultCode[newLang]);
@@ -58,65 +94,70 @@ function CodeEditor() {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <div className="mb-6 flex items-start gap-4">
-        <div className="text-6xl">🤖</div>
-        <div className="flex-1 bg-gradient-to-r from-blue-100 to-purple-100 rounded-xl p-4 shadow-lg">
-          <p className="text-lg font-medium text-gray-800">
+    <div className="w-full">
+      {/* CodeBot Instruction */}
+      <div className="mb-6 flex items-start gap-4 animate-fadeIn">
+        <div className="text-6xl md:text-7xl animate-bounce">🤖</div>
+        <div className="flex-1 bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 rounded-2xl p-6 shadow-xl border-2 border-white/50 backdrop-blur-sm">
+          <p className="text-lg md:text-xl font-bold text-gray-800">
             {t('codebot.greeting')}
           </p>
-          <p className="text-gray-600 mt-2">
-            Try running the code below, or write your own!
+          <p className="text-gray-600 mt-2 text-sm md:text-base">
+            ✨ Try running the code below, or write your own masterpiece!
           </p>
         </div>
       </div>
 
-      <div className="mb-4 flex gap-2">
+      {/* Language Selector */}
+      <div className="mb-6 flex flex-wrap gap-3 justify-center">
         <button
           onClick={() => handleLanguageChange('python')}
-          className={`px-4 py-2 rounded-lg font-medium transition-all ${
+          className={`px-6 py-3 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg ${
             language === 'python'
-              ? 'bg-blue-500 text-white shadow-lg'
-              : 'bg-white text-gray-700 hover:bg-gray-100 shadow'
+              ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-blue-500/50'
+              : 'bg-white text-gray-700 hover:bg-gray-50'
           }`}
         >
           🐍 Python
         </button>
         <button
           onClick={() => handleLanguageChange('javascript')}
-          className={`px-4 py-2 rounded-lg font-medium transition-all ${
+          className={`px-6 py-3 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg ${
             language === 'javascript'
-              ? 'bg-yellow-500 text-white shadow-lg'
-              : 'bg-white text-gray-700 hover:bg-gray-100 shadow'
+              ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-white shadow-yellow-500/50'
+              : 'bg-white text-gray-700 hover:bg-gray-50'
           }`}
         >
           🟨 JavaScript
         </button>
         <button
           onClick={() => handleLanguageChange('html')}
-          className={`px-4 py-2 rounded-lg font-medium transition-all ${
+          className={`px-6 py-3 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg ${
             language === 'html'
-              ? 'bg-orange-500 text-white shadow-lg'
-              : 'bg-white text-gray-700 hover:bg-gray-100 shadow'
+              ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-orange-500/50'
+              : 'bg-white text-gray-700 hover:bg-gray-50'
           }`}
         >
           🎨 HTML
         </button>
       </div>
 
-      <div className="bg-white rounded-xl shadow-2xl overflow-hidden mb-4" dir="ltr">
-        <div className="bg-gray-800 text-white px-4 py-2 flex items-center justify-between">
-          <span className="font-mono text-sm">
+      {/* Code Editor - ALWAYS LTR */}
+      <div className="bg-white rounded-2xl shadow-2xl overflow-hidden mb-6 border-4 border-white/50" dir="ltr">
+        <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white px-6 py-4 flex items-center justify-between">
+          <span className="font-mono text-base md:text-lg font-bold">
             {language === 'python' && '🐍 Python Editor'}
             {language === 'javascript' && '🟨 JavaScript Editor'}
             {language === 'html' && '🎨 HTML Editor'}
           </span>
-          <span className="text-xs text-gray-400">Press Ctrl+Enter to run</span>
+          <span className="text-xs md:text-sm text-gray-400 hidden md:block">
+            Press Ctrl+Enter to run
+          </span>
         </div>
         
         <div dir="ltr">
           <Editor
-            height="300px"
+            height="350px"
             language={language}
             value={code}
             onChange={(value) => setCode(value || '')}
@@ -127,6 +168,7 @@ function CodeEditor() {
               lineNumbers: 'on',
               scrollBeyondLastLine: false,
               automaticLayout: true,
+              wordWrap: 'on',
             }}
             onMount={(editor) => {
               editor.addCommand(window.monaco.KeyMod.CtrlCmd | window.monaco.KeyCode.Enter, handleRunCode);
@@ -135,49 +177,53 @@ function CodeEditor() {
         </div>
       </div>
 
-      <div className="flex gap-3 mb-4">
+      {/* Run Button */}
+      <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <button
           onClick={handleRunCode}
           disabled={isRunning}
-          className={`flex-1 py-3 px-6 rounded-xl font-bold text-lg shadow-lg transition-all transform hover:scale-105 ${
+          className={`flex-1 py-4 px-8 rounded-xl font-bold text-xl shadow-2xl transition-all transform hover:scale-105 ${
             isRunning
               ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:shadow-xl'
+              : 'bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white hover:shadow-green-500/50 animate-pulse'
           }`}
         >
           {isRunning ? (
-            <span className="flex items-center justify-center gap-2">
-              <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
-              Running...
+            <span className="flex items-center justify-center gap-3">
+              <div className="animate-spin h-6 w-6 border-3 border-white border-t-transparent rounded-full"></div>
+              Running Magic... ✨
             </span>
           ) : (
-            <span>🚀 Run Code</span>
+            <span className="flex items-center justify-center gap-2">
+              🚀 Run Code
+            </span>
           )}
         </button>
         
         <button
           onClick={() => setCode(defaultCode[language])}
-          className="px-6 py-3 bg-gray-200 hover:bg-gray-300 rounded-xl font-medium transition-all"
+          className="px-8 py-4 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg"
         >
           🔄 Reset
         </button>
       </div>
 
+      {/* Output Section */}
       {(output || error) && (
-        <div className="bg-white rounded-xl shadow-2xl p-6">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-bold text-lg">
-              {error ? '❌ Error' : '✅ Output'}
+        <div className="bg-white rounded-2xl shadow-2xl p-6 mb-6 border-4 border-white/50 animate-fadeIn">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-black text-2xl">
+              {error ? '❌ Oops!' : '✅ Success!'}
             </h3>
             {executionTime > 0 && (
-              <span className="text-sm text-gray-500">
+              <span className="text-sm font-bold text-gray-500 bg-gray-100 px-4 py-2 rounded-full">
                 ⚡ {executionTime}s
               </span>
             )}
           </div>
           
           {error ? (
-            <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded" dir="ltr">
+            <div className="bg-red-50 border-l-4 border-red-500 p-6 rounded-xl" dir="ltr">
               <pre className="text-red-700 font-mono text-sm whitespace-pre-wrap">
                 {error}
               </pre>
@@ -186,23 +232,23 @@ function CodeEditor() {
             <>
               {language === 'html' ? (
                 <div className="space-y-4">
-                  <div className="bg-gray-50 border-l-4 border-orange-500 p-4 rounded">
-                    <h4 className="font-semibold text-gray-700 mb-2">Preview:</h4>
+                  <div className="bg-gradient-to-r from-orange-50 to-red-50 border-l-4 border-orange-500 p-6 rounded-xl">
+                    <h4 className="font-bold text-gray-800 mb-3 text-lg">🎨 Preview:</h4>
                     <div 
-                      className="bg-white border border-gray-300 rounded p-4 min-h-[100px]"
+                      className="bg-white border-2 border-gray-300 rounded-xl p-6 min-h-[150px] shadow-inner"
                       dangerouslySetInnerHTML={{ __html: output }}
                     />
                   </div>
-                  <div className="bg-gray-50 border-l-4 border-blue-500 p-4 rounded" dir="ltr">
-                    <h4 className="font-semibold text-gray-700 mb-2">HTML Code:</h4>
-                    <pre className="text-gray-800 font-mono text-sm whitespace-pre-wrap">
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 p-6 rounded-xl" dir="ltr">
+                    <h4 className="font-bold text-gray-800 mb-3 text-lg">📝 HTML Code:</h4>
+                    <pre className="text-gray-800 font-mono text-sm whitespace-pre-wrap bg-white p-4 rounded-lg">
                       {output}
                     </pre>
                   </div>
                 </div>
               ) : (
-                <div className="bg-gray-50 border-l-4 border-green-500 p-4 rounded" dir="ltr">
-                  <pre className="text-gray-800 font-mono text-sm whitespace-pre-wrap">
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 p-6 rounded-xl" dir="ltr">
+                  <pre className="text-gray-800 font-mono text-sm md:text-base whitespace-pre-wrap">
                     {output || '(no output)'}
                   </pre>
                 </div>
@@ -210,128 +256,151 @@ function CodeEditor() {
             </>
           )}
 
+          {/* Success Message with Animation */}
           {output && !error && (
-            <div className="mt-4 flex items-center gap-2 text-green-600 font-medium">
-              <span className="text-2xl">🎉</span>
+            <div className="mt-6 flex items-center gap-3 text-green-600 font-bold text-lg bg-green-50 p-4 rounded-xl animate-bounce">
+              <span className="text-3xl">🎉</span>
               <span>
-                {language === 'html' ? 'Your HTML is displayed above!' : 'Great job! Your code ran successfully!'}
+                {language === 'html' ? 'Your HTML looks amazing!' : 'Awesome! Your code ran perfectly!'}
               </span>
+              <span className="text-3xl">✨</span>
             </div>
           )}
         </div>
       )}
 
-      <div className="mt-8 bg-white rounded-xl shadow-lg p-6">
-        <h3 className="font-bold text-xl mb-4">📚 Try These Examples:</h3>
+      {/* Sample Exercises */}
+      <div className="bg-white rounded-2xl shadow-2xl p-6 border-4 border-white/50">
+        <h3 className="font-black text-2xl mb-6 text-center bg-gradient-to-r from-purple-600 to-pink-600 text-transparent bg-clip-text">
+          📚 Try These Examples
+        </h3>
         
         {language === 'python' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <button
               onClick={() => setCode('# Hello World\nprint("Hello, CodeQuest!")')}
-              className="text-left p-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+              className="text-left p-5 bg-gradient-to-br from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 rounded-xl transition-all transform hover:scale-105 shadow-md border-2 border-blue-200"
             >
-              <div className="font-semibold text-blue-700">👋 Hello World</div>
+              <div className="font-bold text-blue-700 text-lg mb-1">👋 Hello World</div>
               <div className="text-sm text-gray-600">Print your first message</div>
             </button>
             
             <button
               onClick={() => setCode('# Math Operations\nx = 5\ny = 3\nprint(f"{x} + {y} = {x + y}")\nprint(f"{x} * {y} = {x * y}")')}
-              className="text-left p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
+              className="text-left p-5 bg-gradient-to-br from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 rounded-xl transition-all transform hover:scale-105 shadow-md border-2 border-green-200"
             >
-              <div className="font-semibold text-green-700">➕ Math Operations</div>
+              <div className="font-bold text-green-700 text-lg mb-1">➕ Math Operations</div>
               <div className="text-sm text-gray-600">Add and multiply numbers</div>
             </button>
             
             <button
               onClick={() => setCode('# Loop Example\nfor i in range(1, 6):\n    print(f"Count: {i}")')}
-              className="text-left p-3 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
+              className="text-left p-5 bg-gradient-to-br from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 rounded-xl transition-all transform hover:scale-105 shadow-md border-2 border-purple-200"
             >
-              <div className="font-semibold text-purple-700">🔁 Loop</div>
+              <div className="font-bold text-purple-700 text-lg mb-1">🔁 Loop</div>
               <div className="text-sm text-gray-600">Count from 1 to 5</div>
             </button>
             
             <button
               onClick={() => setCode('# Draw Pattern\nfor i in range(5):\n    print("⭐" * (i + 1))')}
-              className="text-left p-3 bg-pink-50 hover:bg-pink-100 rounded-lg transition-colors"
+              className="text-left p-5 bg-gradient-to-br from-pink-50 to-pink-100 hover:from-pink-100 hover:to-pink-200 rounded-xl transition-all transform hover:scale-105 shadow-md border-2 border-pink-200"
             >
-              <div className="font-semibold text-pink-700">🎨 Pattern</div>
+              <div className="font-bold text-pink-700 text-lg mb-1">🎨 Pattern</div>
               <div className="text-sm text-gray-600">Draw a star pattern</div>
             </button>
           </div>
         )}
         
         {language === 'javascript' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <button
               onClick={() => setCode('// Hello World\nconsole.log("Hello, CodeQuest!");')}
-              className="text-left p-3 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors"
+              className="text-left p-5 bg-gradient-to-br from-yellow-50 to-yellow-100 hover:from-yellow-100 hover:to-yellow-200 rounded-xl transition-all transform hover:scale-105 shadow-md border-2 border-yellow-200"
             >
-              <div className="font-semibold text-yellow-700">👋 Hello World</div>
+              <div className="font-bold text-yellow-700 text-lg mb-1">👋 Hello World</div>
               <div className="text-sm text-gray-600">Print your first message</div>
             </button>
             
             <button
               onClick={() => setCode('// Math Operations\nconst x = 5;\nconst y = 3;\nconsole.log(x + y);')}
-              className="text-left p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
+              className="text-left p-5 bg-gradient-to-br from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 rounded-xl transition-all transform hover:scale-105 shadow-md border-2 border-green-200"
             >
-              <div className="font-semibold text-green-700">➕ Math Operations</div>
+              <div className="font-bold text-green-700 text-lg mb-1">➕ Math Operations</div>
               <div className="text-sm text-gray-600">Add and multiply numbers</div>
             </button>
             
             <button
               onClick={() => setCode('// Loop Example\nfor (let i = 1; i <= 5; i++) {\n  console.log("Count: " + i);\n}')}
-              className="text-left p-3 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
+              className="text-left p-5 bg-gradient-to-br from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 rounded-xl transition-all transform hover:scale-105 shadow-md border-2 border-purple-200"
             >
-              <div className="font-semibold text-purple-700">🔁 Loop</div>
+              <div className="font-bold text-purple-700 text-lg mb-1">🔁 Loop</div>
               <div className="text-sm text-gray-600">Count from 1 to 5</div>
             </button>
             
             <button
               onClick={() => setCode('// Array Example\nconst fruits = ["🍎", "🍌", "🍊"];\nfruits.forEach(f => console.log(f));')}
-              className="text-left p-3 bg-pink-50 hover:bg-pink-100 rounded-lg transition-colors"
+              className="text-left p-5 bg-gradient-to-br from-pink-50 to-pink-100 hover:from-pink-100 hover:to-pink-200 rounded-xl transition-all transform hover:scale-105 shadow-md border-2 border-pink-200"
             >
-              <div className="font-semibold text-pink-700">📋 Arrays</div>
+              <div className="font-bold text-pink-700 text-lg mb-1">📋 Arrays</div>
               <div className="text-sm text-gray-600">Work with arrays</div>
             </button>
           </div>
         )}
         
         {language === 'html' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <button
               onClick={() => setCode('<h1>Hello World</h1>\n<p>Welcome to CodeQuest!</p>')}
-              className="text-left p-3 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors"
+              className="text-left p-5 bg-gradient-to-br from-orange-50 to-orange-100 hover:from-orange-100 hover:to-orange-200 rounded-xl transition-all transform hover:scale-105 shadow-md border-2 border-orange-200"
             >
-              <div className="font-semibold text-orange-700">👋 Hello World</div>
+              <div className="font-bold text-orange-700 text-lg mb-1">👋 Hello World</div>
               <div className="text-sm text-gray-600">Basic HTML structure</div>
             </button>
             
             <button
               onClick={() => setCode('<h1 style="color: blue;">Styled Header</h1>\n<p style="background: yellow; padding: 10px;">Styled paragraph</p>')}
-              className="text-left p-3 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
+              className="text-left p-5 bg-gradient-to-br from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 rounded-xl transition-all transform hover:scale-105 shadow-md border-2 border-green-200"
             >
-              <div className="font-semibold text-green-700">🎨 Inline Styles</div>
+              <div className="font-bold text-green-700 text-lg mb-1">🎨 Inline Styles</div>
               <div className="text-sm text-gray-600">Add colors and styles</div>
             </button>
             
             <button
               onClick={() => setCode('<ul>\n  <li>Apple 🍎</li>\n  <li>Banana 🍌</li>\n  <li>Orange 🍊</li>\n</ul>')}
-              className="text-left p-3 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
+              className="text-left p-5 bg-gradient-to-br from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 rounded-xl transition-all transform hover:scale-105 shadow-md border-2 border-purple-200"
             >
-              <div className="font-semibold text-purple-700">📋 Lists</div>
+              <div className="font-bold text-purple-700 text-lg mb-1">📋 Lists</div>
               <div className="text-sm text-gray-600">Create a list</div>
             </button>
             
             <button
               onClick={() => setCode('<div style="border: 2px solid blue; padding: 20px; border-radius: 10px;">\n  <h2>Card Title</h2>\n  <p>Card content</p>\n</div>')}
-              className="text-left p-3 bg-pink-50 hover:bg-pink-100 rounded-lg transition-colors"
+              className="text-left p-5 bg-gradient-to-br from-pink-50 to-pink-100 hover:from-pink-100 hover:to-pink-200 rounded-xl transition-all transform hover:scale-105 shadow-md border-2 border-pink-200"
             >
-              <div className="font-semibold text-pink-700">📦 Card</div>
+              <div className="font-bold text-pink-700 text-lg mb-1">📦 Card</div>
               <div className="text-sm text-gray-600">Create a styled card</div>
             </button>
           </div>
         )}
       </div>
+
+      {/* Custom CSS for fadeIn animation */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 0.5s ease-out;
+        }
+      `}</style>
     </div>
   );
 }
