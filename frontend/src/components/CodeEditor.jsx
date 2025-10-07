@@ -20,17 +20,20 @@ function CodeEditor() {
   };
 
   const handleRunCode = async () => {
-    setIsRunning(true);
-    setOutput('');
-    setError('');
-    setExecutionTime(0);
+  setIsRunning(true);
+  setOutput('');
+  setError('');
+  setExecutionTime(0);
 
-    try {
-      const response = await axios.post('/api/execute', {
-        code: code,
-        language: language
-      });
-
+  try {
+    // Use environment variable for API URL
+    const apiUrl = import.meta.env.VITE_API_URL || '';
+    const endpoint = apiUrl ? `${apiUrl}/api/execute` : '/api/execute';
+    
+    const response = await axios.post(endpoint, {
+      code: code,
+      language: language
+    });
       const result = response.data;
       
       if (result.status === 'success') {
