@@ -1,9 +1,14 @@
+import AchievementSystem from '../components/AchievementSystem';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from '../components/LanguageSelector';
 import CodeEditor from '../components/CodeEditor';
+import ProgressDashboard from '../components/ProgressDashboard';
+import { useTheme } from '../contexts/ThemeContext';
+import SettingsPanel from '../components/SettingsPanel';
 
 function ExercisePage() {
   const { t } = useTranslation();
+  const { currentTheme } = useTheme();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 relative overflow-hidden">
@@ -29,6 +34,12 @@ function ExercisePage() {
             <LanguageSelector />
           </div>
         </header>
+         {/* Progress Dashboard */}
+          <ProgressDashboard />
+          {/* Achievement System */}
+          <AchievementSystem />
+
+          {/* Main Code Editor - CENTERED */}
 
         {/* Main Content - Centered */}
         <main className="flex justify-center">
@@ -49,6 +60,9 @@ function ExercisePage() {
           </div>
         </footer>
       </div>
+
+      {/* Settings Panel */}
+      <SettingsPanel />
 
       {/* Custom CSS for animations */}
       <style jsx>{`
