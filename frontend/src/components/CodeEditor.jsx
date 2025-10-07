@@ -26,7 +26,7 @@ function CodeEditor() {
     setExecutionTime(0);
 
     try {
-      const response = await axios.post('http://localhost:8000/api/execute', {
+      const response = await axios.post('/api/execute', {
         code: code,
         language: language
       });
@@ -47,7 +47,6 @@ function CodeEditor() {
       setIsRunning(false);
     }
   };
-
   const handleLanguageChange = (newLang) => {
     setLanguage(newLang);
     setCode(defaultCode[newLang]);
