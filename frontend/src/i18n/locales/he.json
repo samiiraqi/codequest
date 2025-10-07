@@ -1,0 +1,12 @@
+{
+  "app": {
+    "title": "קוד קווסט",
+    "subtitle": "!למד לתכנת, תהנה"
+  },
+  "codebot": {
+    "greeting": "🤖 !היי! אני קודבוט! בואו נלמד לתכנת ביחד"
+  },
+  "buttons": {
+    "start": "התחל ללמוד"
+  }
+}

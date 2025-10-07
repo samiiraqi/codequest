@@ -1,0 +1,13 @@
+{
+  "app": {
+    "title": "CodeQuest",
+    "subtitle": "Learn to Code, Have Fun!"
+  },
+  "codebot": {
+    "greeting": "Hi! I'm CodeBot! Let's learn to code together! 🤖"
+  },
+  "buttons": {
+    "start": "Start Learning"
+  }
+}
+
