@@ -11,6 +11,7 @@ import ShareModal from './ShareModal';
 import ChallengeMode from './ChallengeMode';
 import ExecutionStats from './ExecutionStats';
 import { playSound, initAudio } from '../utils/sounds';
+import TutorialGuide from './TutorialGuide';
 
 function CodeEditor() {
   const { t } = useTranslation();
@@ -239,7 +240,7 @@ function CodeEditor() {
           </p>
         </div>
       </div>
-
+      <TutorialGuide language={language} onLoadCode={handleLoadCode} />
       <ChallengeMode language={language} onLoadCode={handleLoadCode} />
       <ExerciseBrowser language={language} onSelectExercise={handleSelectExercise} />
       <SavedCodeManager language={language} onLoadCode={handleLoadCode} />
