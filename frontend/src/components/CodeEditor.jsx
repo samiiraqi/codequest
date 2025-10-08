@@ -11,8 +11,7 @@ import ShareModal from './ShareModal';
 import ChallengeMode from './ChallengeMode';
 import ExecutionStats from './ExecutionStats';
 import { playSound, initAudio } from '../utils/sounds';
-import TutorialGuide from './TutorialGuide';
-
+import CodeExplainer from './CodeExplainer';
 function CodeEditor() {
   const { t } = useTranslation();
   const { trackCodeRun } = useProgress();
@@ -240,7 +239,7 @@ function CodeEditor() {
           </p>
         </div>
       </div>
-      <TutorialGuide language={language} onLoadCode={handleLoadCode} />
+      
       <ChallengeMode language={language} onLoadCode={handleLoadCode} />
       <ExerciseBrowser language={language} onSelectExercise={handleSelectExercise} />
       <SavedCodeManager language={language} onLoadCode={handleLoadCode} />
@@ -277,7 +276,7 @@ function CodeEditor() {
           🎨 HTML
         </button>
       </div>
-
+               <CodeExplainer language={language} code={code} />
       <div className="bg-white rounded-2xl shadow-2xl overflow-hidden mb-6 border-4 border-white/50" dir="ltr">
         <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white px-6 py-4 flex items-center justify-between">
           <span className="font-mono text-base md:text-lg font-bold">
