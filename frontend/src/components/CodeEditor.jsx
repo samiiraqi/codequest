@@ -10,11 +10,12 @@ import ExerciseBrowser from './ExerciseBrowser';
 import ShareModal from './ShareModal';
 import ChallengeMode from './ChallengeMode';
 import ExecutionStats from './ExecutionStats';
+import { playSound, initAudio } from '../utils/sounds';
 
 function CodeEditor() {
   const { t } = useTranslation();
   const { trackCodeRun } = useProgress();
-  const { fontSize } = useTheme();
+  const { fontSize, soundEnabled } = useTheme();
   
   const [language, setLanguage] = useState('python');
   const [code, setCode] = useState('# Write your code here\nprint("Hello, CodeQuest!")');
@@ -72,6 +73,24 @@ function CodeEditor() {
     window.addEventListener('keydown', handleKeyboard);
     return () => window.removeEventListener('keydown', handleKeyboard);
   }, [code, language]);
+  // Initialize audio on component mount (for mobile)
+  useEffect(() => {
+    // Initialize audio context on any user interaction
+    const initAudioContext = () => {
+      initAudio();
+      // Remove listeners after first interaction
+      document.removeEventListener('touchstart', initAudioContext);
+      document.removeEventListener('click', initAudioContext);
+    };
+    
+    document.addEventListener('touchstart', initAudioContext, { once: true });
+    document.addEventListener('click', initAudioContext, { once: true });
+    
+    return () => {
+      document.removeEventListener('touchstart', initAudioContext);
+      document.removeEventListener('click', initAudioContext);
+    };
+  }, []);
 
   const celebrate = () => {
     const duration = 3 * 1000;
@@ -123,10 +142,29 @@ function CodeEditor() {
         setOutput(result.output);
         setExecutionTime(result.execution_time);
         trackCodeRun(language, true);
+        
+        // Play success sound if enabled
+        if (soundEnabled) {
+          try {
+            playSound('success');
+          } catch (err) {
+            console.log('Sound error:', err);
+          }
+        }
+        
         celebrate();
       } else {
         setError(result.error);
         setExecutionTime(result.execution_time);
+        
+        // Play error sound if enabled
+        if (soundEnabled) {
+          try {
+            playSound('error');
+          } catch (err) {
+            console.log('Sound error:', err);
+          }
+        }
       }
     } catch (err) {
       setError('Failed to execute code. Make sure the backend is running!');
@@ -135,7 +173,6 @@ function CodeEditor() {
       setIsRunning(false);
     }
   };
-
   const handleLanguageChange = (newLang) => {
     setLanguage(newLang);
     setCode(defaultCode[newLang]);
@@ -156,6 +193,16 @@ function CodeEditor() {
       date: new Date().toISOString(),
     });
     localStorage.setItem(`codequest_saved_${language}`, JSON.stringify(saved));
+    
+    // Play save sound if enabled
+    if (soundEnabled) {
+      try {
+        playSound('save');
+      } catch (err) {
+        console.log('Sound error:', err);
+      }
+    }
+    
     alert('Code saved! ✅');
   };
 
@@ -266,7 +313,11 @@ function CodeEditor() {
 
       <div className="flex flex-col sm:flex-row gap-4 mb-6">
         <button
-          onClick={handleRunCode}
+                    onClick={() => {
+            initAudio(); // Initialize audio on button click
+            handleRunCode();
+          }}
+
           disabled={isRunning}
           className={`flex-1 py-4 px-8 rounded-xl font-bold text-xl shadow-2xl transition-all transform hover:scale-105 ${
             isRunning

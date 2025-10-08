@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useProgress } from '../contexts/ProgressContext';
 import confetti from 'canvas-confetti';
+import { playSound } from '../utils/sounds';
 
 function AchievementSystem() {
   const { progress } = useProgress();
@@ -119,6 +120,8 @@ function AchievementSystem() {
     if (newlyUnlocked.length > 0) {
       const newAchievement = achievements.find(a => a.id === newlyUnlocked[0]);
       setNewAchievement(newAchievement);
+      // Play achievement sound
+      playSound('achievement');
       
       // Celebrate!
       confetti({
