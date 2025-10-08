@@ -396,12 +396,15 @@ function CodeEditor() {
           ) : (
             <>
               {language === 'html' ? (
-                <div className="space-y-4">
+                <>
                   <div className="bg-gradient-to-r from-orange-50 to-red-50 border-l-4 border-orange-500 p-6 rounded-xl">
                     <h4 className="font-bold text-gray-800 mb-3 text-lg">🎨 Preview:</h4>
-                    <div 
-                      className="bg-white border-2 border-gray-300 rounded-xl p-6 min-h-[150px] shadow-inner"
-                      dangerouslySetInnerHTML={{ __html: output }}
+                    <iframe
+                      srcDoc={output}
+                      className="w-full bg-white border-2 border-gray-300 rounded-xl shadow-inner"
+                      style={{ minHeight: '200px', height: '400px' }}
+                      title="HTML Preview"
+                      sandbox="allow-scripts"
                     />
                   </div>
                   <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 p-6 rounded-xl" dir="ltr">
@@ -410,7 +413,7 @@ function CodeEditor() {
                       {output}
                     </pre>
                   </div>
-                </div>
+                </>
               ) : (
                 <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 p-6 rounded-xl" dir="ltr">
                   <pre className="text-gray-800 font-mono text-sm md:text-base whitespace-pre-wrap">
