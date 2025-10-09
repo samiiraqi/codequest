@@ -12,11 +12,12 @@ import ChallengeMode from './ChallengeMode';
 import ExecutionStats from './ExecutionStats';
 import { playSound, initAudio } from '../utils/sounds';
 import CodeExplainer from './CodeExplainer';
+import { useKingdom } from '../contexts/KingdomContext';
 function CodeEditor() {
   const { t } = useTranslation();
   const { trackCodeRun } = useProgress();
   const { fontSize, soundEnabled } = useTheme();
-  
+  const { awardCoins } = useKingdom();
   const [language, setLanguage] = useState('python');
   const [code, setCode] = useState('# Write your code here\nprint("Hello, CodeQuest!")');
   const [output, setOutput] = useState('');
@@ -142,6 +143,13 @@ function CodeEditor() {
         setOutput(result.output);
         setExecutionTime(result.execution_time);
         trackCodeRun(language, true);
+        // Award coins for successful code run!
+        const coinReward = awardCoins(10, 'code_run');
+        
+        // Show coin notification
+        setTimeout(() => {
+          alert(`🎉 Great job! +10 coins earned!\n\nYour balance: ${coinReward.leveledUp ? `LEVEL UP! 🎊 You're now level ${coinReward.newLevel}!` : 'Keep coding to earn more!'}`);
+        }, 500);
         
         // Play success sound if enabled
         if (soundEnabled) {

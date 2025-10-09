@@ -5,10 +5,19 @@ import CodeEditor from '../components/CodeEditor';
 import ProgressDashboard from '../components/ProgressDashboard';
 import { useTheme } from '../contexts/ThemeContext';
 import SettingsPanel from '../components/SettingsPanel';
+import { useState } from 'react';
+import { useKingdom } from '../contexts/KingdomContext';
+import KingdomPage from './KingdomPage';
 
 function ExercisePage() {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
+  const [showKingdom, setShowKingdom] = useState(false);
+
+  if (showKingdom) {
+    return <KingdomPage onBack={() => setShowKingdom(false)} />;
+  }
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 relative overflow-hidden">
@@ -40,6 +49,18 @@ function ExercisePage() {
           <AchievementSystem />
 
           {/* Main Code Editor - CENTERED */}
+          {/* Kingdom Button - ADD THIS */}
+          <div className="mb-6 text-center">
+            <button
+              onClick={() => setShowKingdom(true)}
+              className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-white px-8 py-4 rounded-2xl font-black text-2xl shadow-2xl hover:shadow-yellow-500/50 transition-all transform hover:scale-110 animate-pulse"
+            >
+              🏰 Open Code Kingdom Builder
+            </button>
+            <p className="text-white font-medium mt-2">
+              Build your kingdom by earning coins through coding!
+            </p>
+          </div>
 
         {/* Main Content - Centered */}
         <main className="flex justify-center">
