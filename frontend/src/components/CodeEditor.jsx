@@ -12,12 +12,12 @@ import ChallengeMode from './ChallengeMode';
 import ExecutionStats from './ExecutionStats';
 import { playSound, initAudio } from '../utils/sounds';
 import CodeExplainer from './CodeExplainer';
-import { useKingdom } from '../contexts/KingdomContext';
+import { usePuzzle } from '../contexts/PuzzleContext';
 function CodeEditor() {
   const { t } = useTranslation();
   const { trackCodeRun } = useProgress();
   const { fontSize, soundEnabled } = useTheme();
-  const { awardCoins } = useKingdom();
+  const { awardCoins } = usePuzzle();
   const [language, setLanguage] = useState('python');
   const [code, setCode] = useState('# Write your code here\nprint("Hello, CodeQuest!")');
   const [output, setOutput] = useState('');
@@ -143,12 +143,20 @@ function CodeEditor() {
         setOutput(result.output);
         setExecutionTime(result.execution_time);
         trackCodeRun(language, true);
-        // Award coins for successful code run!
-        const coinReward = awardCoins(10, 'code_run');
+       // Award coins for successful code run!
+        awardCoins(10, 'code_run');
         
         // Show coin notification
         setTimeout(() => {
-          alert(`🎉 Great job! +10 coins earned!\n\nYour balance: ${coinReward.leveledUp ? `LEVEL UP! 🎊 You're now level ${coinReward.newLevel}!` : 'Keep coding to earn more!'}`);
+          const messages = [
+            '🎉 +10 coins! Keep building your puzzle!',
+            '💰 +10 coins earned! Unlock more pieces!',
+            '✨ +10 coins! Your puzzle is waiting!',
+            '🧩 +10 coins! Reveal another piece!',
+            '🎯 +10 coins! Code more, unlock more!'
+          ];
+          const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+          alert(randomMessage);
         }, 500);
         
         // Play success sound if enabled

@@ -1,19 +1,18 @@
 import { useState } from 'react';
-import KingdomStats from '../components/KingdomStats';
-//import KingdomCanvas from '../components/KingdomCanvas';
-//import BuildingStore from '../components/BuildingStore';
-import KingdomBuilder from '../components/KingdomBuilder';
-import { useKingdom } from '../contexts/KingdomContext';
+import PuzzleStats from '../components/PuzzleStats';
+import PuzzleCanvas from '../components/PuzzleCanvas';
+import PuzzleGallery from '../components/PuzzleGallery';
+import { usePuzzle } from '../contexts/PuzzleContext';
 
-function KingdomPage({ onBack }) {
-  const { buildings } = useKingdom();
+function PuzzlePage({ onBack }) {
+  const { activePuzzle, completedPuzzles } = usePuzzle();
   const [showHelp, setShowHelp] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
           <button
             onClick={onBack}
             className="bg-white text-purple-600 px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
@@ -22,7 +21,7 @@ function KingdomPage({ onBack }) {
           </button>
           
           <h1 className="text-4xl md:text-6xl font-black text-white text-center flex-1">
-            🏰 Code Kingdom Builder
+            🧩 Puzzle Photo Builder
           </h1>
 
           <button
@@ -51,39 +50,42 @@ function KingdomPage({ onBack }) {
 
               <div className="space-y-4 text-gray-700">
                 <div className="bg-blue-50 rounded-xl p-4 border-2 border-blue-200">
-                  <h3 className="font-bold text-lg mb-2">💰 Earn Coins</h3>
+                  <h3 className="font-bold text-lg mb-2">💰 Earn Coins by Coding</h3>
                   <ul className="list-disc list-inside space-y-1 text-sm">
                     <li>Run code successfully: <strong>+10 coins</strong></li>
                     <li>Complete an exercise: <strong>+50 coins</strong></li>
                     <li>Solve a challenge: <strong>+100 coins</strong></li>
-                    <li>Unlock an achievement: <strong>+200 coins</strong></li>
+                    <li>Complete a puzzle: <strong>+500 bonus coins!</strong></li>
                   </ul>
                 </div>
 
                 <div className="bg-green-50 rounded-xl p-4 border-2 border-green-200">
-                  <h3 className="font-bold text-lg mb-2">🏗️ Build Your Kingdom</h3>
+                  <h3 className="font-bold text-lg mb-2">🧩 Build Your Puzzle</h3>
                   <ol className="list-decimal list-inside space-y-1 text-sm">
-                    <li>Buy buildings from the store</li>
-                    <li>Click on the map to place them</li>
-                    <li>Build houses to increase population</li>
-                    <li>Add decorations to increase happiness</li>
+                    <li>Choose a beautiful photo from the gallery</li>
+                    <li>The photo splits into 96 puzzle pieces</li>
+                    <li>Click any locked piece to reveal it with coins</li>
+                    <li>Each piece shows part of the image</li>
+                    <li>Complete all pieces to see the full photo!</li>
                   </ol>
                 </div>
 
                 <div className="bg-purple-50 rounded-xl p-4 border-2 border-purple-200">
-                  <h3 className="font-bold text-lg mb-2">⭐ Level Up</h3>
-                  <p className="text-sm">
-                    Earn <strong>500 coins</strong> to level up! Higher levels unlock more buildings.
-                  </p>
+                  <h3 className="font-bold text-lg mb-2">💎 Puzzle Difficulties</h3>
+                  <ul className="space-y-1 text-sm">
+                    <li><span className="inline-block w-3 h-3 rounded-full bg-green-500 mr-2"></span><strong>Easy</strong> (Sweets): 10 coins/piece = 960 total</li>
+                    <li><span className="inline-block w-3 h-3 rounded-full bg-yellow-500 mr-2"></span><strong>Medium</strong> (Nature/Animals): 15 coins/piece = 1,440 total</li>
+                    <li><span className="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span><strong>Hard</strong> (Palace/Jewelry): 20 coins/piece = 1,920 total</li>
+                  </ul>
                 </div>
 
                 <div className="bg-yellow-50 rounded-xl p-4 border-2 border-yellow-200">
-                  <h3 className="font-bold text-lg mb-2">🎯 Tips</h3>
+                  <h3 className="font-bold text-lg mb-2">🎯 Pro Tips</h3>
                   <ul className="list-disc list-inside space-y-1 text-sm">
-                    <li>Start with cheap buildings like trees and flowers</li>
-                    <li>Houses increase population (5 citizens per house)</li>
-                    <li>Save up for the castle! It's the ultimate goal!</li>
-                    <li>Click on buildings to remove them and get space</li>
+                    <li>Start with easy puzzles (sweets/candy)</li>
+                    <li>Each completed puzzle gives 500 bonus coins</li>
+                    <li>Work on one puzzle at a time</li>
+                    <li>The more you code, the more puzzles you unlock!</li>
                   </ul>
                 </div>
               </div>
@@ -92,7 +94,7 @@ function KingdomPage({ onBack }) {
                 onClick={() => setShowHelp(false)}
                 className="w-full mt-6 bg-gradient-to-r from-purple-500 to-pink-600 text-white py-4 rounded-xl font-bold text-lg hover:shadow-xl transition-all"
               >
-                Got it! Let's Build! 🏗️
+                Got it! Let's Build! 🧩
               </button>
             </div>
           </div>
@@ -102,18 +104,39 @@ function KingdomPage({ onBack }) {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Stats */}
           <div className="lg:col-span-1">
-            <KingdomStats />
+            <PuzzleStats />
           </div>
 
-          {/* Right Column - Kingdom & Store */}
+          {/* Right Column - Canvas & Gallery */}
           <div className="lg:col-span-2 space-y-6">
-            <KingdomBuilder />
+            {/* Puzzle Canvas */}
+            {activePuzzle ? (
+              <PuzzleCanvas />
+            ) : (
+              <div className="bg-white rounded-2xl shadow-2xl p-12 border-4 border-white/50 text-center">
+                <div className="text-6xl mb-4">🧩</div>
+                <h2 className="text-3xl font-black text-gray-800 mb-3">
+                  Choose Your First Puzzle!
+                </h2>
+                <p className="text-gray-600 mb-6">
+                  Select a beautiful photo from the gallery below to start building
+                </p>
+                <div className="inline-block bg-gradient-to-r from-purple-100 to-pink-100 rounded-xl p-4 border-2 border-purple-300">
+                  <p className="text-gray-700 text-sm">
+                    👇 Scroll down to see all available puzzles
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Puzzle Gallery */}
+            <PuzzleGallery />
           </div>
         </div>
 
         {/* Welcome Message for New Users */}
-        {buildings.length === 0 && (
-          <div className="fixed bottom-8 left-16 transform -translate-y-1/2 bg-white rounded-2xl shadow-2xl p-6 max-w-sm z-50">
+        {completedPuzzles.length === 0 && !activePuzzle && (
+          <div className="fixed bottom-8 left-64 bg-white rounded-2xl shadow-2xl p-6 max-w-sm z-50">
             <button
               onClick={(e) => e.currentTarget.parentElement.style.display = 'none'}
               className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-xl font-bold"
@@ -124,7 +147,7 @@ function KingdomPage({ onBack }) {
               👋 Welcome!
             </h3>
             <p className="text-gray-700 text-center mb-4 text-sm">
-              Start building by buying your first building from the store!
+              Choose a beautiful photo and start revealing puzzle pieces!
             </p>
             <button
               onClick={() => setShowHelp(true)}
@@ -139,4 +162,4 @@ function KingdomPage({ onBack }) {
   );
 }
 
-export default KingdomPage;
+export default PuzzlePage;

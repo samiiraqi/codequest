@@ -6,17 +6,19 @@ import ProgressDashboard from '../components/ProgressDashboard';
 import { useTheme } from '../contexts/ThemeContext';
 import SettingsPanel from '../components/SettingsPanel';
 import { useState } from 'react';
-import { useKingdom } from '../contexts/KingdomContext';
-import KingdomPage from './KingdomPage';
+import PuzzlePage from './PuzzlePage';
+
 
 function ExercisePage() {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
-  const [showKingdom, setShowKingdom] = useState(false);
+  const [showPuzzle, setShowPuzzle] = useState(false);
 
-  if (showKingdom) {
-    return <KingdomPage onBack={() => setShowKingdom(false)} />;
+  if (showPuzzle) {
+    return <PuzzlePage onBack={() => setShowPuzzle(false)} />;
   }
+  
+
 
 
   return (
@@ -49,20 +51,22 @@ function ExercisePage() {
           <AchievementSystem />
 
           {/* Main Code Editor - CENTERED */}
-          {/* Kingdom Button - ADD THIS */}
+          {/* Puzzle Button */}
           <div className="mb-6 text-center">
             <button
-              onClick={() => setShowKingdom(true)}
+              onClick={() => setShowPuzzle(true)}
               className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-white px-8 py-4 rounded-2xl font-black text-2xl shadow-2xl hover:shadow-yellow-500/50 transition-all transform hover:scale-110 animate-pulse"
             >
-              🏰 Open Code Kingdom Builder
+              🧩 Open Puzzle Photo Builder
             </button>
+            <p className="text-white font-medium mt-2">
+              Reveal beautiful photos by earning coins through coding!
+            </p>
+          </div>
             <p className="text-white font-medium mt-2">
               Build your kingdom by earning coins through coding!
             </p>
-          </div>
-
-        {/* Main Content - Centered */}
+          {/* Main Content - Centered */}
         <main className="flex justify-center">
           <div className="w-full max-w-5xl">
             <CodeEditor />
