@@ -3,17 +3,16 @@ import { useTranslation } from 'react-i18next';
 import LanguageSelector from '../components/LanguageSelector';
 import CodeEditor from '../components/CodeEditor';
 import ProgressDashboard from '../components/ProgressDashboard';
-import { useTheme } from '../contexts/ThemeContext';
 import SettingsPanel from '../components/SettingsPanel';
 import { useState, useEffect } from 'react';
 import PuzzlePage from './PuzzlePage';
 
 function ExercisePage() {
   const { t } = useTranslation();
-  const { currentTheme } = useTheme();
   const [showPuzzle, setShowPuzzle] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstall, setShowInstall] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(false);
 
   useEffect(() => {
     const handler = (e) => {
@@ -25,8 +24,6 @@ function ExercisePage() {
     window.addEventListener('beforeinstallprompt', handler);
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
-
-  const [showInstructions, setShowInstructions] = useState(false);
 
   const handleInstall = async () => {
     // If browser supports auto-install
@@ -111,7 +108,7 @@ function ExercisePage() {
         {/* Install Instructions Modal */}
         {showInstructions && (
           <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setShowInstructions(false)}>
-            <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-2xl w-full" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600">
                   📱 How to Install CodeQuest
