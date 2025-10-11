@@ -4,6 +4,7 @@ import ExercisePage from './pages/ExercisePage';
 import { ProgressProvider } from './contexts/ProgressContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { PuzzleProvider } from './contexts/PuzzleContext';
+import OfflineIndicator from './components/OfflineIndicator';
 
 function App() {
   const { t } = useTranslation();
@@ -12,6 +13,7 @@ function App() {
     <ThemeProvider>
       <ProgressProvider>
         <PuzzleProvider>
+          <OfflineIndicator />
           <ExercisePage />
         </PuzzleProvider>
       </ProgressProvider>

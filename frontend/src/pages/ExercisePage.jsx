@@ -5,21 +5,43 @@ import CodeEditor from '../components/CodeEditor';
 import ProgressDashboard from '../components/ProgressDashboard';
 import { useTheme } from '../contexts/ThemeContext';
 import SettingsPanel from '../components/SettingsPanel';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PuzzlePage from './PuzzlePage';
-
 
 function ExercisePage() {
   const { t } = useTranslation();
   const { currentTheme } = useTheme();
   const [showPuzzle, setShowPuzzle] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showInstall, setShowInstall] = useState(false);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstall(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+    
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    
+    if (outcome === 'accepted') {
+      setShowInstall(false);
+    }
+    
+    setDeferredPrompt(null);
+  };
 
   if (showPuzzle) {
     return <PuzzlePage onBack={() => setShowPuzzle(false)} />;
   }
-  
-
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 relative overflow-hidden">
@@ -45,28 +67,42 @@ function ExercisePage() {
             <LanguageSelector />
           </div>
         </header>
-         {/* Progress Dashboard */}
-          <ProgressDashboard />
-          {/* Achievement System */}
-          <AchievementSystem />
 
-          {/* Main Code Editor - CENTERED */}
-          {/* Puzzle Button */}
+        {/* Progress Dashboard */}
+        <ProgressDashboard />
+        
+        {/* Achievement System */}
+        <AchievementSystem />
+
+        {/* Puzzle Button */}
+        <div className="mb-6 text-center">
+          <button
+            onClick={() => setShowPuzzle(true)}
+            className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-white px-8 py-4 rounded-2xl font-black text-2xl shadow-2xl hover:shadow-yellow-500/50 transition-all transform hover:scale-110 animate-pulse"
+          >
+            ✨ Open Disney Puzzle Magic
+          </button>
+          <p className="text-white font-medium mt-2">
+            Build Disney character puzzles by earning coins through coding!
+          </p>
+        </div>
+
+        {/* Install Button - Only shows when installable */}
+        {true && (
           <div className="mb-6 text-center">
             <button
-              onClick={() => setShowPuzzle(true)}
-              className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-white px-8 py-4 rounded-2xl font-black text-2xl shadow-2xl hover:shadow-yellow-500/50 transition-all transform hover:scale-110 animate-pulse"
+              onClick={handleInstall}
+              className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-8 py-4 rounded-2xl font-black text-xl shadow-2xl hover:shadow-green-500/50 transition-all transform hover:scale-110"
             >
-              🧩 Open Puzzle Photo Builder
+              📱 Install App (Works Offline!)
             </button>
             <p className="text-white font-medium mt-2">
-              Reveal beautiful photos by earning coins through coding!
+              Install CodeQuest and use it without internet!
             </p>
           </div>
-            <p className="text-white font-medium mt-2">
-              Build your kingdom by earning coins through coding!
-            </p>
-          {/* Main Content - Centered */}
+        )}
+
+        {/* Main Content - Centered */}
         <main className="flex justify-center">
           <div className="w-full max-w-5xl">
             <CodeEditor />

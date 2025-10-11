@@ -13,6 +13,7 @@ import ExecutionStats from './ExecutionStats';
 import { playSound, initAudio } from '../utils/sounds';
 import CodeExplainer from './CodeExplainer';
 import { usePuzzle } from '../contexts/PuzzleContext';
+import { runPythonOffline, runJavaScriptOffline, runHTMLOffline, isOnline } from '../utils/offlineCodeRunner';
 function CodeEditor() {
   const { t } = useTranslation();
   const { trackCodeRun } = useProgress();
@@ -126,24 +127,41 @@ function CodeEditor() {
     setIsRunning(true);
     setOutput('');
     setError('');
-    setExecutionTime(0);
+    setExecutionTime(null);
+    
+    const startTime = Date.now();
 
     try {
-      const apiUrl = import.meta.env.VITE_API_URL || '';
-      const endpoint = apiUrl ? `${apiUrl}/api/execute` : '/api/execute';
+      let result;
       
-      const response = await axios.post(endpoint, {
-        code: code,
-        language: language
-      });
+      // Check if online or offline
+      if (isOnline()) {
+        // ONLINE: Use backend server
+        const response = await axios.post(`${API_URL}/execute`, {
+          language,
+          code,
+        });
+        result = response.data;
+      } else {
+        // OFFLINE: Run in browser!
+        if (language === 'python') {
+          result = await runPythonOffline(code);
+        } else if (language === 'javascript') {
+          result = runJavaScriptOffline(code);
+        } else if (language === 'html') {
+          result = runHTMLOffline(code);
+        }
+      }
 
-      const result = response.data;
-      
+      const endTime = Date.now();
+      const execTime = ((endTime - startTime) / 1000).toFixed(2);
+
       if (result.status === 'success') {
         setOutput(result.output);
-        setExecutionTime(result.execution_time);
+        setExecutionTime(execTime);
         trackCodeRun(language, true);
-       // Award coins for successful code run!
+        
+        // Award coins for successful code run!
         awardCoins(10, 'code_run');
         
         // Show coin notification
@@ -159,7 +177,6 @@ function CodeEditor() {
           alert(randomMessage);
         }, 500);
         
-        // Play success sound if enabled
         if (soundEnabled) {
           try {
             playSound('success');
@@ -170,21 +187,13 @@ function CodeEditor() {
         
         celebrate();
       } else {
-        setError(result.error);
-        setExecutionTime(result.execution_time);
-        
-        // Play error sound if enabled
-        if (soundEnabled) {
-          try {
-            playSound('error');
-          } catch (err) {
-            console.log('Sound error:', err);
-          }
-        }
+        setError(result.error || 'An error occurred');
+        trackCodeRun(language, false);
       }
     } catch (err) {
-      setError('Failed to execute code. Make sure the backend is running!');
-      console.error(err);
+      console.error('Execution error:', err);
+      setError(err.response?.data?.error || err.message || 'Failed to execute code');
+      trackCodeRun(language, false);
     } finally {
       setIsRunning(false);
     }
