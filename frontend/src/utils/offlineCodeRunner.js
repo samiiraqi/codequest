@@ -1,23 +1,71 @@
+// Python offline runner with better loading
+let pyodideLoading = null;
+let pyodideReady = false;
+
+export const loadPyodideIfNeeded = async () => {
+  if (pyodideReady && window.pyodide) {
+    return window.pyodide;
+  }
+
+  if (pyodideLoading) {
+    return pyodideLoading;
+  }
+
+  pyodideLoading = (async () => {
+    try {
+      // Load Pyodide script
+      if (!window.loadPyodide) {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js';
+        document.head.appendChild(script);
+        
+        await new Promise((resolve, reject) => {
+          script.onload = resolve;
+          script.onerror = reject;
+        });
+      }
+
+      // Initialize Pyodide
+      window.pyodide = await window.loadPyodide({
+        indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/'
+      });
+      
+      pyodideReady = true;
+      return window.pyodide;
+    } catch (error) {
+      pyodideLoading = null;
+      throw error;
+    }
+  })();
+
+  return pyodideLoading;
+};
+
 // Run Python code in browser (offline!)
 export const runPythonOffline = async (code) => {
   try {
-    // Use Pyodide (Python in browser)
-    if (!window.pyodide) {
-      const pyodideScript = document.createElement('script');
-      pyodideScript.src = 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js';
-      document.head.appendChild(pyodideScript);
-      
-      await new Promise((resolve) => {
-        pyodideScript.onload = resolve;
-      });
-      
-      window.pyodide = await loadPyodide();
-    }
+    const pyodide = await loadPyodideIfNeeded();
+    
+    // Redirect Python output
+    await pyodide.runPythonAsync(`
+import sys
+from io import StringIO
+sys.stdout = StringIO()
+sys.stderr = StringIO()
+    `);
 
-    const output = await window.pyodide.runPythonAsync(code);
+    // Run user code
+    await pyodide.runPythonAsync(code);
+
+    // Get output
+    const stdout = await pyodide.runPythonAsync('sys.stdout.getvalue()');
+    const stderr = await pyodide.runPythonAsync('sys.stderr.getvalue()');
+
+    const output = stdout || stderr || 'Code executed successfully!';
+
     return {
       status: 'success',
-      output: output || 'Code executed successfully!',
+      output: output,
       execution_time: 0
     };
   } catch (error) {
@@ -35,23 +83,37 @@ export const runJavaScriptOffline = (code) => {
     // Capture console.log output
     let output = '';
     const originalLog = console.log;
+    const logs = [];
+    
     console.log = (...args) => {
-      output += args.join(' ') + '\n';
+      const message = args.map(arg => 
+        typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+      ).join(' ');
+      logs.push(message);
     };
 
-    // Run code
-    eval(code);
+    // Run code in try-catch
+    try {
+      eval(code);
+      output = logs.join('\n') || 'Code executed successfully!';
+    } catch (err) {
+      console.log = originalLog;
+      return {
+        status: 'error',
+        error: err.message,
+        execution_time: 0
+      };
+    }
 
     // Restore console.log
     console.log = originalLog;
 
     return {
       status: 'success',
-      output: output || 'Code executed successfully!',
+      output: output,
       execution_time: 0
     };
   } catch (error) {
-    console.log = console.log;
     return {
       status: 'error',
       error: error.message,

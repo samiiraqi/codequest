@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Loading Python...</title>
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+</head>
+<body>
+  <h1>Preloading Python for offline use...</h1>
+  <script>
+    async function loadPyodide() {
+      window.pyodide = await loadPyodide();
+      console.log("Pyodide loaded!");
+    }
+    loadPyodide();
+  </script>
+</body>
+</html>

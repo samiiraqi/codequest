@@ -13,7 +13,7 @@ import ExecutionStats from './ExecutionStats';
 import { playSound, initAudio } from '../utils/sounds';
 import CodeExplainer from './CodeExplainer';
 import { usePuzzle } from '../contexts/PuzzleContext';
-import { runPythonOffline, runJavaScriptOffline, runHTMLOffline, isOnline } from '../utils/offlineCodeRunner';
+import { runPythonOffline, runJavaScriptOffline, runHTMLOffline, isOnline, loadPyodideIfNeeded } from '../utils/offlineCodeRunner';
 function CodeEditor() {
   const { t } = useTranslation();
   const { trackCodeRun } = useProgress();
@@ -145,6 +145,7 @@ function CodeEditor() {
       } else {
         // OFFLINE: Run in browser!
         if (language === 'python') {
+          setOutput('Loading Python offline engine... (first time takes 10-20 seconds)');
           result = await runPythonOffline(code);
         } else if (language === 'javascript') {
           result = runJavaScriptOffline(code);
